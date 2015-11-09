@@ -32,32 +32,7 @@ import java.util.Arrays;
  */
 public class ForecastFragment extends Fragment {
 
-    private static String weatherData;
-
-    public ForecastFragment() {
-    }
-
-
-    /*public Void setWeatherData(String data){
-        ArrayList<String> entries = new ArrayList<>();
-        entries.add("Hoy hace frio");
-        entries.add("Mañana un poco menos");
-        entries.add("Despues un poco menos menos");
-        entries.add("Despues menos todavia");
-        entries.add("Despues ya empieza el verano");
-        entries.add("y despues el invierno");
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.list_item_forecast,R.id.list_item_forecast_textview, entries);
-
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-        ListView listview = (ListView) rootView.findViewById(R.id.listview_forecast);
-
-        listview.setAdapter(adapter);
-        return null;
-    }*/
-
+    public ArrayAdapter<String> weatherAdapter;
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
@@ -88,21 +63,16 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        ArrayList<String> entries = new ArrayList<>();
-        entries.add("Hoy hace frio");
-        entries.add("Mañana un poco menos");
-        entries.add("Despues un poco menos menos");
-        entries.add("Despues menos todavia");
-        entries.add("Despues ya empieza el verano");
-        entries.add("y despues el invierno");
+        FetchWeatherTask t = new FetchWeatherTask(3432043,7);
+        t.execute();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.list_item_forecast,R.id.list_item_forecast_textview, entries);
+        weatherAdapter = new ArrayAdapter<String>(getActivity(),
+                R.layout.list_item_forecast,R.id.list_item_forecast_textview, new ArrayList<String>());
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         ListView listview = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listview.setAdapter(adapter);
+        listview.setAdapter(weatherAdapter);
 
         return rootView;
     }
@@ -112,6 +82,15 @@ public class ForecastFragment extends Fragment {
         int cityId;
         int days;
         public String result;
+
+        @Override
+        protected void onPostExecute(String[] strings) {
+            super.onPostExecute(strings);
+            weatherAdapter.clear();
+            for(String s :strings){
+                weatherAdapter.add(s);
+            }
+        }
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
@@ -135,8 +114,6 @@ public class ForecastFragment extends Fragment {
                 weatherUrl.appendQueryParameter("appId","2de143494c0b295cca9337e1e96b00e0");
                 weatherUrl.appendQueryParameter("cnt", ((Integer)days).toString());
                 weatherUrl.appendQueryParameter("units", "metric");
-
-                Log.d(LOG_TAG,weatherUrl.toString());
                 URL url = new URL(weatherUrl.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
@@ -147,7 +124,7 @@ public class ForecastFragment extends Fragment {
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null){
-                    Log.d(LOG_TAG,"Input Stream was null");
+                    Log.e(LOG_TAG,"Input Stream was null");
                     return null;
                 }
 
@@ -162,7 +139,6 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 String result = buffer.toString();
-                Log.v(LOG_TAG, result);
                 return result;
 
             } catch (java.net.ProtocolException e){
@@ -195,8 +171,6 @@ public class ForecastFragment extends Fragment {
             WeatherDataParser parser = new WeatherDataParser();
             try {
                 String[] forecasts = parser.getWeatherDataFromJson(weatherJson, days);
-
-                Log.d(LOG_TAG, Arrays.toString(forecasts));
                 return forecasts;
             } catch (JSONException e) {
                 e.printStackTrace();
