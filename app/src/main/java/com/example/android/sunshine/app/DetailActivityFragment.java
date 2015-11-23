@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -19,6 +21,12 @@ public class DetailActivityFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstance){
+        super.onCreate(savedInstance);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         DetailActivity activity = (DetailActivity)getActivity();
@@ -29,4 +37,7 @@ public class DetailActivityFragment extends Fragment {
         t.setText(weatherData);
         return fragmentView;
     }
+
+
+
 }

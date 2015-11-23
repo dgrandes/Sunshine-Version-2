@@ -87,7 +87,7 @@ public class WeatherDataParser {
         // now we work exclusively in UTC
         dayTime = new Time();
 
-        String[] resultStrs = new String[numDays];
+        String[] resultStrs = new String[weatherArray.length()];
         for(int i = 0; i < weatherArray.length(); i++) {
             // For now, using the format "Day, description, hi/low"
             String day;

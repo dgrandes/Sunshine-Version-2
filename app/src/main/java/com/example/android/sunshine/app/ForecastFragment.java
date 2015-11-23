@@ -1,9 +1,11 @@
 package com.example.android.sunshine.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,6 +37,8 @@ import java.util.Arrays;
  */
 public class ForecastFragment extends Fragment {
 
+    public String LOG_TAG = this.getClass().getSimpleName();
+
     public ArrayAdapter<String> weatherAdapter;
 
     @Override
@@ -50,25 +54,36 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        refreshData();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if( id == R.id.action_refresh){
             //La Plata city Id is 3432043, days is 7
-            FetchWeatherTask t = new FetchWeatherTask(3432043,7);
-            t.execute();
+            refreshData();
             return true;
         }else{
             return super.onOptionsItemSelected(item);
         }
     }
 
+    public void refreshData(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+        Integer cityValue = Integer.parseInt(preferences.getString("city_name_list", ""));
+        String measurement_system = preferences.getString("measurement_system", "0");
+        Integer days = Integer.parseInt(preferences.getString("days", "7"));
+        FetchWeatherTask t = new FetchWeatherTask(cityValue, measurement_system, days);
+        t.execute();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        FetchWeatherTask t = new FetchWeatherTask(3432043,7);
-        t.execute();
-
+        refreshData();
         weatherAdapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.list_item_forecast,R.id.list_item_forecast_textview, new ArrayList<String>());
 
@@ -80,11 +95,8 @@ public class ForecastFragment extends Fragment {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String forecast = weatherAdapter.getItem((int)l);
+                String forecast = weatherAdapter.getItem((int) l);
 
-                Toast toast = Toast.makeText(getActivity().getApplicationContext(), forecast,Toast.LENGTH_LONG);
-
-                //toast.show();
                 Intent intent = new Intent(getActivity(),DetailActivity.class);
                 intent.putExtra(Intent.EXTRA_TEXT, forecast);
                 startActivity(intent);
@@ -97,6 +109,7 @@ public class ForecastFragment extends Fragment {
     private  class FetchWeatherTask extends AsyncTask<Void, Void, String[]> {
         int cityId;
         int days;
+        String measurement_system;
         public String result;
 
         @Override
@@ -104,15 +117,21 @@ public class ForecastFragment extends Fragment {
             super.onPostExecute(strings);
             weatherAdapter.clear();
             for(String s :strings){
-                weatherAdapter.add(s);
+                if (s != null ){
+                    weatherAdapter.add(s);
+                }else{
+                    Log.d(LOG_TAG, "null weather string!");
+                }
+
             }
         }
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-        FetchWeatherTask(int cityId, int days){
+        FetchWeatherTask(int cityId, String measurementSystem, int days){
             super();
             this.cityId = cityId;
+            this.measurement_system = measurementSystem;
             this.days = days;
         }
 
@@ -129,7 +148,7 @@ public class ForecastFragment extends Fragment {
                 weatherUrl.appendQueryParameter("id", ((Integer) cityId).toString());
                 weatherUrl.appendQueryParameter("appId","2de143494c0b295cca9337e1e96b00e0");
                 weatherUrl.appendQueryParameter("cnt", ((Integer)days).toString());
-                weatherUrl.appendQueryParameter("units", "metric");
+                weatherUrl.appendQueryParameter("units", measurement_system);
                 URL url = new URL(weatherUrl.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
