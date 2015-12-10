@@ -67,6 +67,10 @@ public class WeatherDataParser {
         final String OWM_MIN = "min";
         final String OWM_DESCRIPTION = "main";
 
+        if(forecastJsonStr == null){
+            return new String[0];
+        }
+
         JSONObject forecastJson = new JSONObject(forecastJsonStr);
         JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 

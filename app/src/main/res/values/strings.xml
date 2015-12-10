@@ -21,11 +21,11 @@
     <string name="pref_default_city">La Plata</string>
 
     <string-array name="pref_city_name_list_titles">
-        <item>La Plata</item>
-        <item>Buenos Aires</item>
-        <item>Rosario</item>
-        <item>Mar del Plata</item>
-        <item>Mendoza</item>
+        <item>La Plata, Argentina</item>
+        <item>Buenos Aires, Argentina</item>
+        <item>Rosario, Argentina</item>
+        <item>Mar del Plata, Argentina</item>
+        <item>Mendoza, Argentina</item>
     </string-array>
 
     <string-array name="pref_city_name_list_values">
