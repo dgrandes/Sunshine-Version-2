@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ShareActionProvider;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +34,8 @@ public class MainActivity extends ActionBarActivity {
 
     public String LOG_TAG = this.getClass().getSimpleName();
 
+    private ShareActionProvider mShareActionProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +51,7 @@ public class MainActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
         return true;
     }
 
@@ -71,6 +75,7 @@ public class MainActivity extends ActionBarActivity {
             showMap(cityName);
             return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }

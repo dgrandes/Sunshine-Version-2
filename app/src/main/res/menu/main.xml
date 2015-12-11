@@ -5,4 +5,5 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_map" android:title="View Location"
         android:orderInCategory="101" app:showAsAction="never"/>
+
 </menu>
