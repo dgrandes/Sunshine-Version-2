@@ -15,10 +15,14 @@
  */
 package com.example.android.sunshine.app.data;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 
+import junit.framework.Test;
+
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class TestDb extends AndroidTestCase {
@@ -112,22 +116,24 @@ public class TestDb extends AndroidTestCase {
     */
     public void testLocationTable() {
         // First step: Get reference to writable database
+        SQLiteDatabase db = getRW_DB(true);
 
         // Create ContentValues of what you want to insert
         // (you can use the createNorthPoleLocationValues if you wish)
+        ContentValues rosarioValues = TestUtilities.createRosarioLocationValues();
 
-        // Insert ContentValues into database and get a row ID back
+        Long rosarioID = insertLocationData(rosarioValues);
 
         // Query the database and receive a Cursor back
+        Cursor cursor = db.query(WeatherContract.LocationEntry.TABLE_NAME, null,
+                WeatherContract.LocationEntry.COLUMN_CITY_NAME +" LIKE ?",
+               new String[]{"Rosario"},null, null, null);
 
-        // Move the cursor to a valid database row
-
-        // Validate data in resulting Cursor with the original ContentValues
-        // (you can use the validateCurrentRecord function in TestUtilities to validate the
-        // query if you like)
+        TestUtilities.validateCursor("Values do not include Rosario", cursor, rosarioValues);
 
         // Finally, close the cursor and database
-
+        cursor.close();
+        db.close();
     }
 
     /*
@@ -137,29 +143,19 @@ public class TestDb extends AndroidTestCase {
         also make use of the validateCurrentRecord function from within TestUtilities.
      */
     public void testWeatherTable() {
-        // First insert the location, and then use the locationRowId to insert
-        // the weather. Make sure to cover as many failure cases as you can.
-
-        // Instead of rewriting all of the code we've already written in testLocationTable
-        // we can move this code to insertLocation and then call insertLocation from both
-        // tests. Why move it? We need the code to return the ID of the inserted location
-        // and our testLocationTable can only return void because it's a test.
-
-        // First step: Get reference to writable database
-
-        // Create ContentValues of what you want to insert
-        // (you can use the createWeatherValues TestUtilities function if you wish)
-
-        // Insert ContentValues into database and get a row ID back
-
+        SQLiteDatabase db = getRW_DB(true);
+        Long locationId = insertLocationData(TestUtilities.createRosarioLocationValues());
+        ContentValues weatherData = TestUtilities.createWeatherValues(locationId);
+        Long weatherID = insertWeatherData(weatherData);
         // Query the database and receive a Cursor back
-
+        Cursor cursor = db.query(WeatherContract.WeatherEntry.TABLE_NAME, null, null,null,null,null,null);
         // Move the cursor to a valid database row
-
+        TestUtilities.validateCursor("Data not found",cursor,weatherData);
         // Validate data in resulting Cursor with the original ContentValues
         // (you can use the validateCurrentRecord function in TestUtilities to validate the
         // query if you like)
-
+        cursor.close();
+        db.close();
         // Finally, close the cursor and database
     }
 
@@ -169,7 +165,32 @@ public class TestDb extends AndroidTestCase {
         code from testLocationTable to here so that you can call this code from both
         testWeatherTable and testLocationTable.
      */
-    public long insertLocation() {
-        return -1L;
+    public long insertLocationData(ContentValues data) {
+        Long rowID = TestUtilities.insertContentValue(this.mContext, WeatherContract.LocationEntry.TABLE_NAME, data);
+        return rowID;
+    }
+
+    public long insertWeatherData(ContentValues data){
+        Long rowID = TestUtilities.insertContentValue(this.mContext, WeatherContract.WeatherEntry.TABLE_NAME, data);
+        return rowID;
+    }
+
+    public SQLiteDatabase getRW_DB(boolean fromScratch){
+        if (fromScratch)
+            mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
+
+        SQLiteDatabase db = new WeatherDbHelper(
+                this.mContext).getWritableDatabase();
+
+        assertEquals(true, db.isOpen());
+        return db;
+    }
+
+    public SQLiteDatabase getRO_DB(){
+        SQLiteDatabase db = new WeatherDbHelper(
+                this.mContext).getReadableDatabase();
+
+        assertEquals(true, db.isOpen());
+        return db;
     }
 }

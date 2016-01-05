@@ -1,8 +1,10 @@
 package com.example.android.sunshine.app.data;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -34,10 +36,18 @@ public class TestUtilities extends AndroidTestCase {
             String columnName = entry.getKey();
             int idx = valueCursor.getColumnIndex(columnName);
             assertFalse("Column '" + columnName + "' not found. " + error, idx == -1);
-            String expectedValue = entry.getValue().toString();
-            assertEquals("Value '" + entry.getValue().toString() +
-                    "' did not match the expected value '" +
-                    expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));
+            if(entry.getValue() instanceof Double){
+                Double expectedValue = (Double) entry.getValue();
+                Double actualValue = valueCursor.getDouble(idx);
+                assertEquals("Value '" + actualValue.toString() +
+                        "' did not match the expected value '" +
+                        expectedValue.toString() + "'. " + error, expectedValue, actualValue, 0.01);
+            }else {
+                String expectedValue = entry.getValue().toString();
+                assertEquals("Value '" + entry.getValue().toString() +
+                        "' did not match the expected value '" +
+                        expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));
+            }
         }
     }
 
@@ -75,24 +85,40 @@ public class TestUtilities extends AndroidTestCase {
         return testValues;
     }
 
+    static ContentValues createRosarioLocationValues(){
+        ContentValues  rosarioValues = new ContentValues();
+
+        rosarioValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, 3838583);
+        rosarioValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "Rosario");
+        rosarioValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, -32.9468200);
+        rosarioValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, -60.6393200);
+
+        return rosarioValues;
+    }
     /*
         Students: You can uncomment this function once you have finished creating the
         LocationEntry part of the WeatherContract as well as the WeatherDbHelper.
      */
-//    static long insertNorthPoleLocationValues(Context context) {
-//        // insert our test records into the database
-//        WeatherDbHelper dbHelper = new WeatherDbHelper(context);
-//        SQLiteDatabase db = dbHelper.getWritableDatabase();
-//        ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
-//
-//        long locationRowId;
-//        locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, testValues);
-//
-//        // Verify we got a row back.
-//        assertTrue("Error: Failure to insert North Pole Location Values", locationRowId != -1);
-//
-//        return locationRowId;
-//    }
+    static long insertNorthPoleLocationValues(Context context) {
+        // insert our test records into the database
+        ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
+
+        long locationRowId;
+        locationRowId = insertContentValue(context, WeatherContract.LocationEntry.TABLE_NAME, testValues);
+
+        return locationRowId;
+    }
+
+    static long insertContentValue(Context context, String tableName, ContentValues content){
+        WeatherDbHelper dbHelper = new WeatherDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        long rowId = db.insert(tableName, null, content);
+
+        assertTrue("Error: Failure to insert the data", rowId != -1);
+        return rowId;
+    }
+
+
 
     /*
         Students: The functions we provide inside of TestProvider use this utility class to test

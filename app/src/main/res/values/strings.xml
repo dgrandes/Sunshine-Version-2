@@ -21,6 +21,12 @@
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_city">La Plata</string>
 
+    <string name="pref_units_key">Units</string>
+    <string name="pref_units_metric">Metric</string>
+    <string name="pref_units_imperial">Imperial</string>
+
+
+
     <string-array name="pref_city_name_list_titles">
         <item>La Plata, Argentina</item>
         <item>Buenos Aires, Argentina</item>
