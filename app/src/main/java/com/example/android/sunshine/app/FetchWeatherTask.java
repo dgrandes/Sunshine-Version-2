@@ -304,10 +304,11 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         // If there's no zip code, there's nothing to look up.  Verify size of params.
         if (params.length == 0) {
+            Log.d(LOG_TAG, "params is 0");
             return null;
         }
         String locationQuery = params[0];
-
+        Log.d(LOG_TAG, "Location Query:" + locationQuery);
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -330,11 +331,14 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             final String FORMAT_PARAM = "mode";
             final String UNITS_PARAM = "units";
             final String DAYS_PARAM = "cnt";
+            final String WEATHER_API = "cc19be9fbc52d5e5d92f311f19c6a74e";
+            final String APPID_PARAM = "appId";
 
             Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                     .appendQueryParameter(QUERY_PARAM, params[0])
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .appendQueryParameter(UNITS_PARAM, units)
+                    .appendQueryParameter(APPID_PARAM, WEATHER_API)
                     .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
                     .build();
 
