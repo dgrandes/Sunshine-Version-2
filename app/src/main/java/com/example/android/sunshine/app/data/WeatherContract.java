@@ -20,6 +20,9 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.Time;
+import android.util.Log;
+
+import java.util.List;
 
 /**
  * Defines table and column names for the weather database.
@@ -86,6 +89,12 @@ public class WeatherContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
+        public static Long getLocationIdFromUri(Uri uri){
+            List<String> pathSegments =  uri.getPathSegments();
+            return Long.parseLong(pathSegments.get(1));
+        }
+
+
     }
 
     /* Inner class that defines the table contents of the weather table */
@@ -131,6 +140,7 @@ public class WeatherContract {
         public static Uri buildWeatherUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
 
         /*
        Student: Fill in this buildWeatherLocation function

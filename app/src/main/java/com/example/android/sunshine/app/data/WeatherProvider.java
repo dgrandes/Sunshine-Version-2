@@ -111,22 +111,22 @@ public class WeatherProvider extends ContentProvider {
         );
     }
 
-    private Cursor getWeather(String[] projection, String sortOrder){
+    private Cursor getWeather(String[] projection, String selection, String[] selectionArgs, String sortOrder){
 
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 sortOrder);
     }
 
-    private Cursor getLocation(String[] projection, String sortOrder){
+    private Cursor getLocation(String[] projection, String selection, String[] selectionArgs, String sortOrder){
         SQLiteQueryBuilder queryBuilder  = new SQLiteQueryBuilder();
         queryBuilder.setTables(WeatherContract.LocationEntry.TABLE_NAME);
         return queryBuilder.query(mOpenHelper.getReadableDatabase(),
-                projection,null,null,null, null, sortOrder);
+                projection,selection,selectionArgs,null, null, sortOrder);
     }
     /*
         Students: Here is where you need to create the UriMatcher. This UriMatcher will
@@ -212,12 +212,12 @@ public class WeatherProvider extends ContentProvider {
             }
             // "weather"
             case WEATHER: {
-                retCursor = getWeather(projection, sortOrder);
+                retCursor = getWeather(projection, selection, selectionArgs, sortOrder);
                 break;
             }
             // "location"
             case LOCATION: {
-                retCursor = getLocation(projection, sortOrder);
+                retCursor = getLocation(projection,selection, selectionArgs, sortOrder);
                 break;
             }
 
